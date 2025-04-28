@@ -1,7 +1,22 @@
 
-current_screen: str = 'main_menu'
+active_screen: str = 'main_menu'
+select_option_msg: str = "\nPlease select an option:\n"
+invalid_option_msg: str = "INVALID OPTION! Please try again."
+goodbye_msg: str = "Exiting the application. Goodbye!"
+
+def print_output(msg: str):
+    print()
+    print("**********"*15)
+    print("**"+" "*70+"OUTPUT"+" "*70+"**")
+    print("**********"*15)
+    print(" ")
+    print(msg)
+    print(" ")
+    print("**********"*15)
 
 def display_main_menu():
+    global active_screen
+
     print("\nWelcome to Hotel-Keeper! Please select an option:\n")
     print("1. Hotels Menu")
     print("2. Rooms Menu")
@@ -9,159 +24,180 @@ def display_main_menu():
     print("4. Reservations Menu")
     print("5. Invoices Menu")
     print("x. Exit")
-    global current_screen
-    current_screen = 'main_menu'
+
+    choice = input(select_option_msg).strip()
+    match choice:
+        case '1':
+            active_screen = 'hotels_menu'
+        case '2':
+            active_screen = 'rooms_menu'
+        case '3':
+            active_screen = 'rates_menu'
+        case '4':
+            active_screen = 'reservations_menu'
+        case '5':
+            active_screen = 'invoices_menu'
+        case 'x':
+            print_output(goodbye_msg)
+            exit(0)
+        case _:
+            print_output(invalid_option_msg)
 
 
 def display_hotels_menu():
+    global active_screen
+
     print("\nHotels Menu: Please select an option:\n")
     print("1. View by Hotel Name")
     print("2. Show All Hotels")
+    print("3. Create New Hotel")
     print("b. Back to Main Menu")
     print("x. Exit")
-    global current_screen
-    current_screen = 'hotels_menu'
+
+    choice = input(select_option_msg).strip()
+    match choice:
+        case '1':
+            print_output("Filter by Hotel Name:")
+        case '2':
+            print_output("Show All Hotels:")
+        case '3':
+            print_output("Create New Hotel:")
+        case 'b':
+            active_screen = 'main_menu'
+        case 'x':
+            print_output(goodbye_msg)
+            exit(0)
+        case _:
+            print_output(invalid_option_msg)
 
 
 def display_rooms_menu():
+    global active_screen
+
     print("\nRooms Menu: Please select an option:\n")
     print("1. View Rooms by Hotel Name")
     print("2. Show All Rooms")
     print("3. Show Reservable Rooms")
+    print("4. Create New Room")
     print("b. Back to Main Menu")
     print("x. Exit")
-    global current_screen
-    current_screen = 'rooms_menu'
+
+    choice = input(select_option_msg).strip()
+    match choice:
+        case '1':
+            print_output("Filter by Hotel Name:")
+        case '2':
+            print_output("Show All Rooms:")
+        case '3':
+            print_output("Show Reservable Rooms:")
+        case '4':
+            print_output("Create New Room:")
+        case 'b':
+            active_screen = 'main_menu'
+        case 'x':
+            print_output(goodbye_msg)
+            exit(0)
+        case _:
+            print_output(invalid_option_msg)
 
 
 def display_rates_menu():
+    global active_screen
+
     print("\nRates Menu: Please select an option:\n")
     print("1. View All Rates")
     print("2. Create new Rate")
     print("b. Back to Main Menu")
     print("x. Exit")
-    global current_screen
-    current_screen = 'rates_menu'
+
+    choice = input(select_option_msg).strip()
+    match choice:
+        case '1':
+            print_output("Show All Rates:")
+        case '2':
+            print_output("Create New Rate:")
+        case 'b':
+            active_screen = 'main_menu'
+        case 'x':
+            print_output(goodbye_msg)
+            exit(0)
+        case _:
+            print_output(invalid_option_msg)
 
 
 def display_reservations_menu():
+    global active_screen
+
     print("\nRates Menu: Please select an option:\n")
     print("1. View All Reservations")
     print("2. Create new Reservation")
+    print("3. Cancel Reservation")
     print("b. Back to Main Menu")
     print("x. Exit")
-    global current_screen
-    current_screen = 'reservations_menu'
+
+    choice = input(select_option_msg).strip()
+    match choice:
+        case '1':
+            print_output("Show All Reservations:")
+        case '2':
+            print_output("Create New Reservation:")
+        case '3':
+            print_output("Cancel Reservation:")
+        case 'b':
+            active_screen = 'main_menu'
+        case 'x':
+            print_output(goodbye_msg)
+            exit(0)
+        case _:
+            print_output(invalid_option_msg)
 
 
 def display_invoices_menu():
+    global active_screen
+
     print("\nRates Menu: Please select an option:\n")
     print("1. View All Invoices")
     print("2. Create new Invoice")
     print("3. Pay Invoice")
     print("b. Back to Main Menu")
     print("x. Exit")
-    global current_screen
-    current_screen = 'invoices_menu'
+
+    choice = input(select_option_msg).strip()
+    match choice:
+        case '1':
+            print_output("Show All Invoices:")
+        case '2':
+            print_output("Create New Invoice:")
+        case '3':
+            print_output("Pay Invoice:")
+        case 'b':
+            active_screen = 'main_menu'
+        case 'x':
+            print_output(goodbye_msg)
+            exit(0)
+        case _:
+            print_output(invalid_option_msg)
 
 
 def main():
 
-    # Setup initial menu screen
-    display_main_menu()
-
     # Main Menu Loop
     while True:
-
-        choice = input("\nPlease select an option: ").strip()
-
-        match current_screen:
+        match active_screen:
             case 'main_menu':
-                match choice:
-                    case '1':
-                        display_hotels_menu()
-                    case '2':
-                        display_rooms_menu()
-                    case 'x':
-                        print("Exiting the application. Goodbye!")
-                        break
-                    case _:
-                        print("Invalid option. Please try again.")
+                display_main_menu()
             case 'hotels_menu':
-                match choice:
-                    case '1':
-                        print("\nFilter by Hotel Name:")
-                    case '2':
-                        print("\nShow All Hotels:")
-                    case '3':
-                        print("\nCreate New Hotel:")
-                    case 'b':
-                        display_main_menu()
-                    case 'x':
-                        print("Exiting the application. Goodbye!")
-                        break
-                    case _:
-                        print("Invalid option. Please try again.")
+                display_hotels_menu()
             case 'rooms_menu':
-                match choice:
-                    case '1':
-                        print("\nFilter by Hotel Name:")
-                    case '2':
-                        print("\nShow All Rooms:")
-                    case '3':
-                        print("\nShow Reservable Rooms:")
-                    case '4':
-                        print("\nCreate New Room:")
-                    case 'b':
-                        display_main_menu()
-                    case 'x':
-                        print("Exiting the application. Goodbye!")
-                        break
-                    case _:
-                        print("Invalid option. Please try again.")
+                display_rooms_menu()
             case 'rates_menu':
-                match choice:
-                    case '1':
-                        print("\nShow All Rates:")
-                    case '2':
-                        print("\nCreate New Rate:")
-                    case 'b':
-                        display_main_menu()
-                    case 'x':
-                        print("Exiting the application. Goodbye!")
-                        break
-                    case _:
-                        print("Invalid option. Please try again.")
+                display_rates_menu()
             case 'reservations_menu':
-                match choice:
-                    case '1':
-                        print("\nShow All Reservations:")
-                    case '2':
-                        print("\nCreate New Reservation:")
-                    case 'b':
-                        display_main_menu()
-                    case 'x':
-                        print("Exiting the application. Goodbye!")
-                        break
-                    case _:
-                        print("Invalid option. Please try again.")
+                display_reservations_menu()
             case 'invoices_menu':
-                match choice:
-                    case '1':
-                        print("\nShow All Invoices:")
-                    case '2':
-                        print("\nCreate New Invoice:")
-                    case '3':
-                        print("\nPay Invoice:")
-                    case 'b':
-                        display_main_menu()
-                    case 'x':
-                        print("Exiting the application. Goodbye!")
-                        break
-                    case _:
-                        print("Invalid option. Please try again.")
+                display_invoices_menu()
             case _:
-                print("Invalid option. Please try again.")
+                print_output(invalid_option_msg)
 
 if __name__ == "__main__":
     main()
