@@ -1,0 +1,9 @@
+# IntelliJ local settings
+.idea
+
+# pyenv environment file
+.python-version
+
+# Python cache files
+__pycache__
+
