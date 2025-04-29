@@ -1,10 +1,11 @@
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from models import Base, Hotel, Room, Guest, Rate, Reservation, Invoice
+from models import Hotel, Room, Guest, Rate, Reservation, Invoice
 from utils import print_output
 
 
-# Hotels Query Functions
+# Hotel Functions
 
 def query_all_hotels(db_engine):
     results = query_hotels(db_engine)
@@ -46,7 +47,39 @@ def query_hotels(db_engine, name=None, city=None, state=None, zip_c=None):
         return query_result
 
 
-# Rooms Query Functions
+def create_hotel(db_engine):
+    name = input("Enter hotel name:\n").strip()
+    city = input("Enter hotel city:\n").strip()
+    state = input("Enter hotel state:\n").strip()
+    zip_c = input("Enter hotel zip:\n").strip()
+
+    try:
+        with Session(db_engine) as session:
+            new_hotel = Hotel(name=name, city=city, state=state, zip=int(zip_c))
+            session.add(new_hotel)
+            session.commit()
+            print_output(f"Hotel '{name}' created successfully with ID: {new_hotel.id}")
+    except ValueError:
+        print_output("Error: ZIP code must be a valid number")
+    except SQLAlchemyError as e:
+        session.rollback()
+        print_output(f"Database error occurred: {str(e)}")
+
+
+def delete_hotel(db_engine):
+    id_to_del = input("Enter Hotel ID:\n").strip()
+
+    with Session(db_engine) as session:
+        hotel_to_del = session.query(Hotel).filter(Hotel.id == int(id_to_del)).first()
+        if hotel_to_del:
+            session.delete(hotel_to_del)
+            session.commit()
+            print_output(f"Hotel '{id_to_del}' deleted successfully.")
+        else:
+            print_output(f"Hotel '{id_to_del}' not found.")
+
+
+# Room Functions
 
 def query_all_rooms(db_engine):
     results = query_rooms(db_engine)
@@ -90,8 +123,42 @@ def query_rooms(db_engine, hotel_id=None, num_rooms=None, num_beds=None, floor=N
                 f"Floor: {room.floor} | Reservable: {room.is_reservable_flag}" for room in results])
         return query_result
 
+def create_room(db_engine):
+    hotel_id = input("Enter hotel ID:\n").strip()
+    num_rooms = input("Enter number of rooms:\n").strip()
+    num_beds = input("Enter number of beds:\n").strip()
+    floor = input("Enter floor:\n").strip()
+    reservable = input("Enter reservable flag (0 -> False or 1 -> True):\n").strip()
 
-# Guests Query Functions
+    try:
+        with Session(db_engine) as session:
+            new_room = Room(hotel_id=int(hotel_id), num_rooms=int(num_rooms), num_beds=int(num_beds),
+                            floor=int(floor), is_reservable_flag=int(reservable))
+            session.add(new_room)
+            session.commit()
+            print_output(f"Room created successfully with ID: {new_room.id}")
+    except ValueError:
+        print_output("Error: All fields must be valid numbers")
+    except SQLAlchemyError as e:
+        session.rollback()
+        print_output(f"Database error occurred: {str(e)}")
+
+
+def delete_room(db_engine):
+    id_to_del = input("Enter Room ID:\n").strip()
+
+    with Session(db_engine) as session:
+        room_to_del = session.query(Room).filter(Room.id == int(id_to_del)).first()
+        if room_to_del:
+            session.delete(room_to_del)
+            session.commit()
+            print_output(f"Room '{id_to_del}' deleted successfully.")
+        else:
+            print_output(f"Room '{id_to_del}' not found.")
+
+
+# Guest Functions
+
 def query_all_guests(db_engine):
     results = query_guests(db_engine)
     output = f"All Guests:\n\n{results}"
@@ -129,4 +196,118 @@ def query_guests(db_engine, first_name=None, last_name=None, address=None, phone
             query_result = "\n".join(
                 [f"ID: {guest.id} | First Name: {guest.first_name} | Last Name: {guest.last_name} | "
                  f"Address: {guest.address} | Phone: {guest.phone}" for guest in results])
+        return query_result
+
+
+# Reservation Functions
+
+def query_all_reservations(db_engine):
+    results = query_reservations(db_engine)
+    output = f"All Reservations:\n\n{results}"
+    print_output(output)
+
+
+def query_reservation_by_parm(db_engine):
+    guest_id = input("Enter guest ID to query, or enter to skip:\n").strip()
+    room_id = input("Enter room ID to query, or enter to skip:\n").strip()
+    rate_id = input("Enter rate ID to query, or enter to skip:\n").strip()
+    # Run the query with the provided parameters
+    results = query_reservations(db_engine, guest_id, room_id, rate_id)
+    output = f"Reservation Query Results:\n\n{results}"
+    print_output(output)
+
+
+def query_reservations(db_engine, guest_id=None, room_id=None, rate_id=None):
+    """Query reservations based on optional parameters."""
+    with Session(db_engine) as session:
+        sql = session.query(Reservation)
+        if guest_id:
+            sql = sql.filter(Reservation.guest_id == int(guest_id))
+        if room_id:
+            sql = sql.filter(Reservation.room_id == int(room_id))
+        if rate_id:
+            sql = sql.filter(Reservation.rate_id == int(rate_id))
+        # Get results based on any provided filters
+        results = sql.all()
+        if not results:
+            return "NO RESULTS FOUND MATCHING THE CRITERIA."
+        else:
+            query_result = "\n".join(
+                [f"ID: {reservation.id} | Guest ID: {reservation.guest_id} | Room ID: {reservation.room_id} | "
+                 f"Rate ID: {reservation.rate_id}" for reservation in results])
+        return query_result
+
+
+# Invoice Functions
+
+def query_all_invoices(db_engine):
+    results = query_invoices(db_engine)
+    output = f"All Invoices:\n\n{results}"
+    print_output(output)
+
+
+def query_invoice_by_parm(db_engine):
+    guest_id = input("Enter guest ID to query, or enter to skip:\n").strip()
+    reservation_id = input("Enter reservation ID to query, or enter to skip:\n").strip()
+    is_paid = input("Enter paid flag (0 -> False or 1 -> True) to query, or enter to skip:\n").strip()
+    date_paid = input("Enter date paid in YYYY-MM-DD to query, or enter to skip:\n").strip()
+    # Run the query with the provided parameters
+    results = query_invoices(db_engine, guest_id, reservation_id, is_paid, date_paid)
+    output = f"Invoice Query Results:\n\n{results}"
+    print_output(output)
+
+
+def query_invoices(db_engine, guest_id=None, reservation_id=None, is_paid=None, date_paid=None):
+    """Query invoices based on optional parameters."""
+    with Session(db_engine) as session:
+        sql = session.query(Invoice)
+        if guest_id:
+            sql = sql.filter(Invoice.guest_id == int(guest_id))
+        if reservation_id:
+            sql = sql.filter(Invoice.reservation_id == int(reservation_id))
+        if amount:
+            sql = sql.filter(Invoice.amount == int(amount))
+        if is_paid in ('0', '1'):
+            sql = sql.filter(Invoice.is_paid_flag == int(is_paid))
+        if date_paid:
+            sql = sql.filter(Invoice.date_paid == date_paid)
+        # Get results based on any provided filters
+        results = sql.all()
+        if not results:
+            return "NO RESULTS FOUND MATCHING THE CRITERIA."
+        else:
+            query_result = "\n".join(
+                [f"ID: {invoice.id} | Guest ID: {invoice.guest_id} | Reservation ID: {invoice.reservation_id} | "
+                 f"Amount: {invoice.amount} | Paid: {invoice.is_paid_flag}" for invoice in results])
+        return query_result
+
+
+# Rate Functions
+
+def query_all_rates(db_engine):
+    results = query_rates(db_engine)
+    output = f"All Rates:\n\n{results}"
+    print_output(output)
+
+
+def query_rate_by_parm(db_engine):
+    rate_type = input("Enter rate type to query, or enter to skip:\n").strip()
+    # Run the query with the provided parameters
+    results = query_rates(db_engine, rate_type)
+    output = f"Rate Query Results:\n\n{results}"
+    print_output(output)
+
+def query_rates(db_engine, rate_type=None):
+    """Query rates based on optional parameters."""
+    with Session(db_engine) as session:
+        sql = session.query(Rate)
+        if rate_type:
+            sql = sql.filter(Rate.rate_type == rate_type)
+        # Get results based on any provided filters
+        results = sql.all()
+        if not results:
+            return "NO RESULTS FOUND MATCHING THE CRITERIA."
+        else:
+            query_result = "\n".join(
+                [f"ID: {rate.id} | Rate Type: {rate.rate_type} | Rate Amount: {rate.rate_amount}" for rate in results])
         return query_result

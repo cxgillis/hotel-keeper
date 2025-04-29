@@ -1,9 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists
 
-from services import query_all_hotels, query_hotel_by_parm, query_room_by_parm, query_all_rooms, query_guest_by_parm, \
-    query_all_guests
-from utils import print_title_bar, print_output, initialize_db, seed_db
+from services import *
+from utils import *
 
 active_screen: str = 'main_menu'
 select_option_msg: str = "\nPlease select an option:\n"
@@ -56,6 +55,7 @@ def display_hotels_menu(db_engine):
     print("1. Search for Hotels")
     print("2. Show All Hotels")
     print("3. Create New Hotel")
+    print("4. Delete Hotel")
     print("b. Back to Main Menu")
     print("x. Exit")
 
@@ -66,7 +66,9 @@ def display_hotels_menu(db_engine):
         case '2':
             query_all_hotels(db_engine)
         case '3':
-            print_output("Create New Hotel:")
+            create_hotel(db_engine)
+        case '4':
+            delete_hotel(db_engine)
         case 'b':
             active_screen = 'main_menu'
         case 'x':
@@ -84,6 +86,7 @@ def display_rooms_menu(db_engine):
     print("1. Search for Rooms")
     print("2. Show All Rooms")
     print("3. Create New Room")
+    print("4. Delete Room")
     print("b. Back to Main Menu")
     print("x. Exit")
 
@@ -94,7 +97,9 @@ def display_rooms_menu(db_engine):
         case '2':
             query_all_rooms(db_engine)
         case '3':
-            print_output("Create New Room:")
+            create_room(db_engine)
+        case '4':
+            delete_room(db_engine)
         case 'b':
             active_screen = 'main_menu'
         case 'x':
@@ -102,6 +107,7 @@ def display_rooms_menu(db_engine):
             exit(0)
         case _:
             print_output(invalid_option_msg)
+
 
 def display_guests_menu(db_engine):
     global active_screen
@@ -136,19 +142,22 @@ def display_reservations_menu(db_engine):
 
     print_title_bar("RESERVATIONS MENU")
     print("\nRates Menu: Please select an option:\n")
-    print("1. View All Reservations")
-    print("2. Create new Reservation")
-    print("3. Cancel Reservation")
+    print("1. Search for Reservations")
+    print("2. View All Reservations")
+    print("3. Create new Reservation")
+    print("4. Cancel Reservation")
     print("b. Back to Main Menu")
     print("x. Exit")
 
     choice = input(select_option_msg).strip()
     match choice:
         case '1':
-            print_output("Show All Reservations:")
+            query_reservation_by_parm(db_engine)
         case '2':
-            print_output("Create New Reservation:")
+            query_all_reservations(db_engine)
         case '3':
+            print_output("Create New Reservation:")
+        case '4':
             print_output("Cancel Reservation:")
         case 'b':
             active_screen = 'main_menu'
@@ -164,17 +173,20 @@ def display_invoices_menu(db_engine):
 
     print_title_bar("INVOICES MENU")
     print("\nRates Menu: Please select an option:\n")
-    print("1. View All Invoices")
-    print("2. Create new Invoice")
-    print("3. Pay Invoice")
+    print("1. Search for Invoices")
+    print("2. View All Invoices")
+    print("3. Create new Invoice")
+    print("4. Pay Invoice")
     print("b. Back to Main Menu")
     print("x. Exit")
 
     choice = input(select_option_msg).strip()
     match choice:
         case '1':
-            print_output("Show All Invoices:")
+            query_all_invoices(db_engine)
         case '2':
+            query_invoice_by_parm(db_engine)
+        case '3':
             print_output("Create New Invoice:")
         case '3':
             print_output("Pay Invoice:")
@@ -200,7 +212,7 @@ def display_rates_menu(db_engine):
     choice = input(select_option_msg).strip()
     match choice:
         case '1':
-            print_output("Show All Rates:")
+            query_all_rates(db_engine)
         case '2':
             print_output("Create New Rate:")
         case 'b':

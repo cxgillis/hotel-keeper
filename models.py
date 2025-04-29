@@ -69,15 +69,6 @@ class Reservation(Base):
     )
 
 
-class Rate(Base):
-    __tablename__ = 'rate'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    rate_type = Column(Text, nullable=False)
-    rate_amount = Column(Integer, nullable=False)
-    create_timestamp = Column(DateTime, default=datetime.datetime.now())
-
-
 class Invoice(Base):
     __tablename__ = 'invoice'
 
@@ -92,3 +83,12 @@ class Invoice(Base):
     __table_args__ = (
         CheckConstraint('is_paid_flag IN (0, 1)', name='is_paid_flag_check'),
     )
+
+
+class Rate(Base):
+    __tablename__ = 'rate'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    rate_type = Column(Text, nullable=False)
+    rate_amount = Column(Integer, nullable=False)
+    create_timestamp = Column(DateTime, default=datetime.datetime.now())
