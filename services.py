@@ -63,10 +63,10 @@ def create_hotel(db_engine):
             session.commit()
             print_output(f"Hotel '{name}' created successfully with ID: {new_hotel.id}")
     except ValueError:
-        print_output("Error: ZIP code must be a valid number")
+        print_output("ERROR: ZIP code must be a valid number")
     except SQLAlchemyError as e:
         session.rollback()
-        print_output(f"Database error occurred: {str(e)}")
+        print_output(f"ERROR: Database error occurred: {str(e)}")
 
 
 def delete_hotel(db_engine):
@@ -159,10 +159,10 @@ def create_room(db_engine):
             session.commit()
             print_output(f"Room created successfully with ID: {new_room.id}")
     except ValueError:
-        print_output("Error: All fields must be valid numbers")
+        print_output("ERROR: All fields must be valid numbers")
     except SQLAlchemyError as e:
         session.rollback()
-        print_output(f"Database error occurred: {str(e)}")
+        print_output(f"ERROR: Database error occurred: {str(e)}")
 
 
 def delete_room(db_engine):
@@ -233,10 +233,10 @@ def create_guest(db_engine):
             session.commit()
             print_output(f"Guest created successfully with ID: {new_guest.id}")
     except ValueError:
-        print_output("Error: Phone number must be a valid number")
+        print_output("ERROR: Phone number must be a valid number")
     except SQLAlchemyError as e:
         session.rollback()
-        print_output(f"Database error occurred: {str(e)}")
+        print_output(f"ERROR: Database error occurred: {str(e)}")
 
 
 def delete_guest(db_engine):
@@ -308,10 +308,10 @@ def create_reservation(db_engine):
             session.commit()
             print_output(f"Reservation created successfully with ID: {new_reservation.id}")
     except ValueError:
-        print_output("Error: All fields must be whole numbers")
+        print_output("ERROR: All fields must be whole numbers")
     except SQLAlchemyError as e:
         session.rollback()
-        print_output(f"Database error occurred: {str(e)}")
+        print_output(f"ERROR: Database error occurred: {str(e)}")
 
 
 def delete_reservation(db_engine):
@@ -368,10 +368,10 @@ def query_invoices(db_engine, guest_id=None, reservation_id=None, is_paid=None, 
                     [f"ID: {invoice.id} | Guest ID: {invoice.guest_id} | Reservation ID: {invoice.reservation_id} | "
                      f"Amount: {invoice.amount} | Paid: {invoice.is_paid_flag}" for invoice in results])
     except ValueError:
-        query_result = "Error: Invalid data type provided for one or more search fields"
+        query_result = "ERROR: Invalid data type provided for one or more search fields"
     except SQLAlchemyError as e:
         session.rollback()
-        query_result = f"Database error occurred: {str(e)}"
+        query_result = f"ERROR: Database error occurred: {str(e)}"
     return query_result
 
 
@@ -402,10 +402,10 @@ def create_invoice(db_engine):
                 session.commit()
                 print_output(f"Invoice created successfully with ID: {new_invoice.id}")
     except ValueError:
-        print_output("Error: All fields must be valid numbers")
+        print_output("ERROR: All fields must be valid numbers")
     except SQLAlchemyError as e:
         session.rollback()
-        print_output(f"Database error occurred: {str(e)}")
+        print_output(f"ERROR: Database error occurred: {str(e)}")
 
 
 def delete_invoice(db_engine):
@@ -512,10 +512,10 @@ def create_rate(db_engine):
             session.commit()
             print_output(f"Rate created successfully with ID: {new_rate.id}")
     except ValueError:
-        print_output("Error: Rate amount must be a valid number")
+        print_output("ERROR: Rate amount must be a valid number")
     except SQLAlchemyError as e:
         session.rollback()
-        print_output(f"Database error occurred: {str(e)}")
+        print_output(f"ERROR: Database error occurred: {str(e)}")
 
 
 def delete_rate(db_engine):
