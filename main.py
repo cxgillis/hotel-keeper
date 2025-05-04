@@ -179,6 +179,7 @@ def display_invoices_menu(db_engine):
     print("3. Create new Invoice")
     print("4. Delete Invoice")
     print("5. Pay Invoice")
+    print("6. Print Invoice")
     print("b. Back to Main Menu")
     print("x. Exit")
 
@@ -194,6 +195,8 @@ def display_invoices_menu(db_engine):
             delete_invoice(db_engine)
         case '5':
             pay_invoice(db_engine)
+        case '6':
+            print_invoice(db_engine)
         case 'b':
             active_screen = 'main_menu'
         case 'x':

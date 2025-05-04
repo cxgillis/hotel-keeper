@@ -25,6 +25,13 @@ def print_output(msg: str):
     input("Press enter to continue...")
 
 
+def print_query_results(results: str = None, prefix_msg: str = None):
+    if results:
+        print_output(prefix_msg+results)
+    else:
+        print_output("NO RESULTS FOUND MATCHING THE CRITERIA.")
+
+
 def exit_app():
     print_title_bar("GOODBYE")
     print(" ")
