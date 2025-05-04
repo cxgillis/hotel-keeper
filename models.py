@@ -76,7 +76,7 @@ class Invoice(Base):
     guest_id = Column(Integer, ForeignKey('guest.id'), nullable=False)
     reservation_id = Column(Integer, ForeignKey('reservation.id'), nullable=False)
     amount = Column(Integer, nullable=False)
-    is_paid_flag = Column(Integer, nullable=False)
+    is_paid_flag = Column(Integer, default=0, nullable=False)
     date_paid = Column(String, nullable=True)
     create_timestamp = Column(DateTime, default=datetime.datetime.now())
 

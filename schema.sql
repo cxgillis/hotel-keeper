@@ -92,9 +92,9 @@ INSERT INTO guest (first_name, last_name, address, phone) VALUES
 
 -- Insert sample records into the `rate` table
 INSERT INTO rate (rate_type, rate_amount) VALUES
-('Standard', 150),
-('Deluxe', 250),
-('Suite', 400);
+('Elite', 150),
+('Preferred', 250),
+('Standard', 400);
 
 -- Insert sample records into the `reservation` table
 INSERT INTO reservation (guest_id, room_id, rate_id, discount_pct, start_date, end_date) VALUES

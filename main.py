@@ -41,8 +41,7 @@ def display_main_menu():
         case '0':
             active_screen = 'admin_menu'
         case 'x':
-            print_output(goodbye_msg)
-            exit(0)
+            exit_app()
         case _:
             print_output(invalid_option_msg)
 
@@ -72,8 +71,7 @@ def display_hotels_menu(db_engine):
         case 'b':
             active_screen = 'main_menu'
         case 'x':
-            print_output(goodbye_msg)
-            exit(0)
+            exit_app()
         case _:
             print_output(invalid_option_msg)
 
@@ -85,8 +83,9 @@ def display_rooms_menu(db_engine):
     print("\nRooms Menu: Please select an option:\n")
     print("1. Search for Rooms")
     print("2. Show All Rooms")
-    print("3. Create New Room")
-    print("4. Delete Room")
+    print("3. Change Room Availability")
+    print("4. Create New Room")
+    print("5. Delete Room")
     print("b. Back to Main Menu")
     print("x. Exit")
 
@@ -97,14 +96,15 @@ def display_rooms_menu(db_engine):
         case '2':
             query_all_rooms(db_engine)
         case '3':
-            create_room(db_engine)
+            change_room_availability(db_engine)
         case '4':
+            create_room(db_engine)
+        case '5':
             delete_room(db_engine)
         case 'b':
             active_screen = 'main_menu'
         case 'x':
-            print_output(goodbye_msg)
-            exit(0)
+            exit_app()
         case _:
             print_output(invalid_option_msg)
 
@@ -117,6 +117,7 @@ def display_guests_menu(db_engine):
     print("1. Search for Guests")
     print("2. Show All Guests")
     print("3. Create New Guest")
+    print("4. Delete Guest")
     print("b. Back to Main Menu")
     print("x. Exit")
 
@@ -127,12 +128,13 @@ def display_guests_menu(db_engine):
         case '2':
             query_all_guests(db_engine)
         case '3':
-            print_output("Create New Guest:")
+            create_guest(db_engine)
+        case '4':
+            delete_guest(db_engine)
         case 'b':
             active_screen = 'main_menu'
         case 'x':
-            print_output(goodbye_msg)
-            exit(0)
+            exit_app()
         case _:
             print_output(invalid_option_msg)
 
@@ -156,14 +158,13 @@ def display_reservations_menu(db_engine):
         case '2':
             query_all_reservations(db_engine)
         case '3':
-            print_output("Create New Reservation:")
+            create_reservation(db_engine)
         case '4':
-            print_output("Cancel Reservation:")
+            delete_reservation(db_engine)
         case 'b':
             active_screen = 'main_menu'
         case 'x':
-            print_output(goodbye_msg)
-            exit(0)
+            exit_app()
         case _:
             print_output(invalid_option_msg)
 
@@ -176,25 +177,27 @@ def display_invoices_menu(db_engine):
     print("1. Search for Invoices")
     print("2. View All Invoices")
     print("3. Create new Invoice")
-    print("4. Pay Invoice")
+    print("4. Delete Invoice")
+    print("5. Pay Invoice")
     print("b. Back to Main Menu")
     print("x. Exit")
 
     choice = input(select_option_msg).strip()
     match choice:
         case '1':
-            query_all_invoices(db_engine)
-        case '2':
             query_invoice_by_parm(db_engine)
+        case '2':
+            query_all_invoices(db_engine)
         case '3':
-            print_output("Create New Invoice:")
-        case '3':
-            print_output("Pay Invoice:")
+            create_invoice(db_engine)
+        case '4':
+            delete_invoice(db_engine)
+        case '5':
+            pay_invoice(db_engine)
         case 'b':
             active_screen = 'main_menu'
         case 'x':
-            print_output(goodbye_msg)
-            exit(0)
+            exit_app()
         case _:
             print_output(invalid_option_msg)
 
@@ -206,6 +209,7 @@ def display_rates_menu(db_engine):
     print("\nRates Menu: Please select an option:\n")
     print("1. View All Rates")
     print("2. Create new Rate")
+    print("3. Delete Rate")
     print("b. Back to Main Menu")
     print("x. Exit")
 
@@ -214,12 +218,13 @@ def display_rates_menu(db_engine):
         case '1':
             query_all_rates(db_engine)
         case '2':
-            print_output("Create New Rate:")
+            create_rate(db_engine)
+        case '3':
+            delete_rate(db_engine)
         case 'b':
             active_screen = 'main_menu'
         case 'x':
-            print_output(goodbye_msg)
-            exit(0)
+            exit_app()
         case _:
             print_output(invalid_option_msg)
 
@@ -245,8 +250,7 @@ def display_admin_menu(db_engine):
         case 'b':
             active_screen = 'main_menu'
         case 'x':
-            print_output(goodbye_msg)
-            exit(0)
+            exit_app()
         case _:
             print_output(invalid_option_msg)
 

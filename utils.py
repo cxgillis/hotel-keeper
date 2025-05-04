@@ -22,7 +22,16 @@ def print_output(msg: str):
     print(msg)
     print(" ")
     print("**********"*15)
+    input("Press enter to continue...")
 
+
+def exit_app():
+    print_title_bar("GOODBYE")
+    print(" ")
+    print("Thank you for using the Hotel Management System.")
+    print(" ")
+    print("**********"*15)
+    exit(0)
 
 def initialize_db(db_engine):
     """Drop and recreate all DB tables if they do not exist."""
@@ -62,9 +71,9 @@ def seed_db(db_engine):
 
         # Insert sample records into the `rate` table
         rates = [
-            Rate(rate_type='Standard', rate_amount=150),
-            Rate(rate_type='Deluxe', rate_amount=250),
-            Rate(rate_type='Suite', rate_amount=400)
+            Rate(rate_type='Elite', rate_amount=150),
+            Rate(rate_type='Preferred', rate_amount=250),
+            Rate(rate_type='Standard', rate_amount=400)
         ]
         session.add_all(rates)
 
