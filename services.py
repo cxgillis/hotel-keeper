@@ -29,25 +29,30 @@ def query_hotel_by_parm(db_engine):
 
 def query_hotels(db_engine, name=None, city=None, state=None, zip_c=None):
     """Query hotels based on optional parameters."""
-    with Session(db_engine) as session:
-        sql = session.query(Hotel)
-        if name:
-            sql = sql.filter(Hotel.name == name)
-        if city:
-            sql = sql.filter(Hotel.city == city)
-        if state:
-            sql = sql.filter(Hotel.state == state)
-        if zip_c:
-            sql = sql.filter(Hotel.zip == zip_c)
-        # Get results based on any provided filters
-        results = sql.all()
-        if not results:
-            return "NO RESULTS FOUND MATCHING THE CRITERIA."
-        else:
-            query_result = "\n".join(
-                [f"ID: {hotel.id} | Name: {hotel.name} | City: {hotel.city} | State: {hotel.state} | ZIP: {hotel.zip}"
-                 for hotel in results])
-        return query_result
+    try:
+        with Session(db_engine) as session:
+            sql = session.query(Hotel)
+            if name:
+                sql = sql.filter(Hotel.name == name)
+            if city:
+                sql = sql.filter(Hotel.city == city)
+            if state:
+                sql = sql.filter(Hotel.state == state)
+            if zip_c:
+                sql = sql.filter(Hotel.zip == int(zip_c))
+            # Get results based on any provided filters
+            results = sql.all()
+            if not results:
+                return "NO RESULTS FOUND MATCHING THE CRITERIA."
+            else:
+                query_result = "\n".join(
+                    [f"ID: {hotel.id} | Name: {hotel.name} | City: {hotel.city} | State: {hotel.state} | ZIP: {hotel.zip}"
+                     for hotel in results])
+    except ValueError:
+        query_result = "ERROR: Invalid data type provided for one or more search fields"
+    except SQLAlchemyError as e:
+        query_result = f"ERROR: Database error occurred: {str(e)}"
+    return query_result
 
 
 def create_hotel(db_engine):
@@ -63,7 +68,7 @@ def create_hotel(db_engine):
             session.commit()
             print_output(f"Hotel '{name}' created successfully with ID: {new_hotel.id}")
     except ValueError:
-        print_output("ERROR: ZIP code must be a valid number")
+        print_output("ERROR: Invalid data type provided for one or more input fields")
     except SQLAlchemyError as e:
         session.rollback()
         print_output(f"ERROR: Database error occurred: {str(e)}")
@@ -72,14 +77,20 @@ def create_hotel(db_engine):
 def delete_hotel(db_engine):
     id_to_del = input("Enter Hotel ID:\n").strip()
 
-    with Session(db_engine) as session:
-        hotel_to_del = session.query(Hotel).filter(Hotel.id == int(id_to_del)).first()
-        if hotel_to_del:
-            session.delete(hotel_to_del)
-            session.commit()
-            print_output(f"Hotel '{id_to_del}' deleted successfully.")
-        else:
-            print_output(f"Hotel '{id_to_del}' not found.")
+    try:
+        with Session(db_engine) as session:
+            hotel_to_del = session.query(Hotel).filter(Hotel.id == int(id_to_del)).first()
+            if hotel_to_del:
+                session.delete(hotel_to_del)
+                session.commit()
+                print_output(f"Hotel '{id_to_del}' deleted successfully.")
+            else:
+                print_output(f"Hotel '{id_to_del}' not found.")
+    except ValueError:
+        print_output("ERROR: Invalid data type provided for one or more input fields")
+    except SQLAlchemyError as e:
+        session.rollback()
+        print_output(f"ERROR: Database error occurred: {str(e)}")
 
 
 # Room Functions
@@ -104,27 +115,32 @@ def query_room_by_parm(db_engine):
 
 def query_rooms(db_engine, hotel_id=None, num_rooms=None, num_beds=None, floor_num=None, reservable=None):
     """Query rooms based on optional parameters."""
-    with Session(db_engine) as session:
-        sql = session.query(Room)
-        if hotel_id:
-            sql = sql.filter(Room.hotel_id == int(hotel_id))
-        if num_rooms:
-            sql = sql.filter(Room.num_rooms == int(num_rooms))
-        if num_beds:
-            sql = sql.filter(Room.num_beds == int(num_beds))
-        if floor_num:
-            sql = sql.filter(Room.floor == int(floor_num))
-        if reservable in ('0', '1'):
-            sql = sql.filter(Room.is_reservable_flag == int(reservable))
-        # Get results based on any provided filters
-        results = sql.all()
-        if not results:
-            return "NO RESULTS FOUND MATCHING THE CRITERIA."
-        else:
-            query_result = "\n".join(
-                [f"ID: {room.id} | Hotel ID: {room.hotel_id} | Num Rooms: {room.num_rooms} | Num Beds: {room.num_beds} | "
-                f"Floor: {room.floor} | Reservable: {room.is_reservable_flag}" for room in results])
-        return query_result
+    try:
+        with Session(db_engine) as session:
+            sql = session.query(Room)
+            if hotel_id:
+                sql = sql.filter(Room.hotel_id == int(hotel_id))
+            if num_rooms:
+                sql = sql.filter(Room.num_rooms == int(num_rooms))
+            if num_beds:
+                sql = sql.filter(Room.num_beds == int(num_beds))
+            if floor_num:
+                sql = sql.filter(Room.floor == int(floor_num))
+            if reservable in ('0', '1'):
+                sql = sql.filter(Room.is_reservable_flag == int(reservable))
+            # Get results based on any provided filters
+            results = sql.all()
+            if not results:
+                return "NO RESULTS FOUND MATCHING THE CRITERIA."
+            else:
+                query_result = "\n".join(
+                    [f"ID: {room.id} | Hotel ID: {room.hotel_id} | Num Rooms: {room.num_rooms} | Num Beds: {room.num_beds} | "
+                    f"Floor: {room.floor} | Reservable: {room.is_reservable_flag}" for room in results])
+    except ValueError:
+        query_result = "ERROR: Invalid data type provided for one or more search fields"
+    except SQLAlchemyError as e:
+        query_result = f"ERROR: Database error occurred: {str(e)}"
+    return query_result
 
 
 def change_room_availability(db_engine):
@@ -134,14 +150,20 @@ def change_room_availability(db_engine):
         print_output("ERROR: Availability must be either 0 or 1")
         return
 
-    with Session(db_engine) as session:
-        room_to_change = session.query(Room).filter(Room.id == int(id_to_change)).first()
-        if room_to_change:
-            room_to_change.is_reservable_flag = int(new_availability)
-            session.commit()
-            print_output(f"Room {id_to_change} availability changed to {'False' if new_availability == 0 else 'True'}.")
-        else:
-            print_output(f"ERROR: Room {id_to_change} not found.")
+    try:
+        with Session(db_engine) as session:
+            room_to_change = session.query(Room).filter(Room.id == int(id_to_change)).first()
+            if room_to_change:
+                room_to_change.is_reservable_flag = int(new_availability)
+                session.commit()
+                print_output(f"Room {id_to_change} availability changed to {'False' if new_availability == 0 else 'True'}.")
+            else:
+                print_output(f"ERROR: Room {id_to_change} not found.")
+    except ValueError:
+        print_output("ERROR: Invalid data type provided for one or more input fields")
+    except SQLAlchemyError as e:
+        session.rollback()
+        print_output(f"ERROR: Database error occurred: {str(e)}")
 
 
 def create_room(db_engine):
@@ -159,7 +181,7 @@ def create_room(db_engine):
             session.commit()
             print_output(f"Room created successfully with ID: {new_room.id}")
     except ValueError:
-        print_output("ERROR: All fields must be valid numbers")
+        print_output("ERROR: Invalid data type provided for one or more input fields")
     except SQLAlchemyError as e:
         session.rollback()
         print_output(f"ERROR: Database error occurred: {str(e)}")
@@ -168,14 +190,20 @@ def create_room(db_engine):
 def delete_room(db_engine):
     id_to_del = input("Enter Room ID:\n").strip()
 
-    with Session(db_engine) as session:
-        room_to_del = session.query(Room).filter(Room.id == int(id_to_del)).first()
-        if room_to_del:
-            session.delete(room_to_del)
-            session.commit()
-            print_output(f"Room '{id_to_del}' deleted successfully.")
-        else:
-            print_output(f"Room '{id_to_del}' not found.")
+    try:
+        with Session(db_engine) as session:
+            room_to_del = session.query(Room).filter(Room.id == int(id_to_del)).first()
+            if room_to_del:
+                session.delete(room_to_del)
+                session.commit()
+                print_output(f"Room '{id_to_del}' deleted successfully.")
+            else:
+                print_output(f"Room '{id_to_del}' not found.")
+    except ValueError:
+        print_output("ERROR: Invalid data type provided for one or more input fields")
+    except SQLAlchemyError as e:
+        session.rollback()
+        print_output(f"ERROR: Database error occurred: {str(e)}")
 
 
 # Guest Functions
@@ -199,25 +227,30 @@ def query_guest_by_parm(db_engine):
 
 def query_guests(db_engine, first_name=None, last_name=None, address=None, phone=None):
     """Query guests based on optional parameters."""
-    with Session(db_engine) as session:
-        sql = session.query(Guest)
-        if first_name:
-            sql = sql.filter(Guest.first_name == first_name)
-        if last_name:
-            sql = sql.filter(Guest.last_name == last_name)
-        if address:
-            sql = sql.filter(Guest.address == address)
-        if phone:
-            sql = sql.filter(Guest.phone == int(phone))
-        # Get results based on any provided filters
-        results = sql.all()
-        if not results:
-            return "NO RESULTS FOUND MATCHING THE CRITERIA."
-        else:
-            query_result = "\n".join(
-                [f"ID: {guest.id} | First Name: {guest.first_name} | Last Name: {guest.last_name} | "
-                 f"Address: {guest.address} | Phone: {guest.phone}" for guest in results])
-        return query_result
+    try:
+        with Session(db_engine) as session:
+            sql = session.query(Guest)
+            if first_name:
+                sql = sql.filter(Guest.first_name == first_name)
+            if last_name:
+                sql = sql.filter(Guest.last_name == last_name)
+            if address:
+                sql = sql.filter(Guest.address == address)
+            if phone:
+                sql = sql.filter(Guest.phone == int(phone))
+            # Get results based on any provided filters
+            results = sql.all()
+            if not results:
+                return "NO RESULTS FOUND MATCHING THE CRITERIA."
+            else:
+                query_result = "\n".join(
+                    [f"ID: {guest.id} | First Name: {guest.first_name} | Last Name: {guest.last_name} | "
+                     f"Address: {guest.address} | Phone: {guest.phone}" for guest in results])
+    except ValueError:
+        query_result = "ERROR: Invalid data type provided for one or more search fields"
+    except SQLAlchemyError as e:
+        query_result = f"ERROR: Database error occurred: {str(e)}"
+    return query_result
 
 
 def create_guest(db_engine):
@@ -233,7 +266,7 @@ def create_guest(db_engine):
             session.commit()
             print_output(f"Guest created successfully with ID: {new_guest.id}")
     except ValueError:
-        print_output("ERROR: Phone number must be a valid number")
+        print_output("ERROR: Invalid data type provided for one or more input fields")
     except SQLAlchemyError as e:
         session.rollback()
         print_output(f"ERROR: Database error occurred: {str(e)}")
@@ -242,14 +275,20 @@ def create_guest(db_engine):
 def delete_guest(db_engine):
     id_to_del = input("Enter Guest ID:\n").strip()
 
-    with Session(db_engine) as session:
-        guest_to_del = session.query(Guest).filter(Guest.id == int(id_to_del)).first()
-        if guest_to_del:
-            session.delete(guest_to_del)
-            session.commit()
-            print_output(f"Guest '{id_to_del}' deleted successfully.")
-        else:
-            print_output(f"Guest '{id_to_del}' not found.")
+    try:
+        with Session(db_engine) as session:
+            guest_to_del = session.query(Guest).filter(Guest.id == int(id_to_del)).first()
+            if guest_to_del:
+                session.delete(guest_to_del)
+                session.commit()
+                print_output(f"Guest '{id_to_del}' deleted successfully.")
+            else:
+                print_output(f"Guest '{id_to_del}' not found.")
+    except ValueError:
+        print_output("ERROR: Invalid data type provided for one or more input fields")
+    except SQLAlchemyError as e:
+        session.rollback()
+        print_output(f"ERROR: Database error occurred: {str(e)}")
 
 
 # Reservation Functions
@@ -272,24 +311,29 @@ def query_reservation_by_parm(db_engine):
 
 def query_reservations(db_engine, guest_id=None, room_id=None, rate_id=None):
     """Query reservations based on optional parameters."""
-    with Session(db_engine) as session:
-        sql = session.query(Reservation)
-        if guest_id:
-            sql = sql.filter(Reservation.guest_id == int(guest_id))
-        if room_id:
-            sql = sql.filter(Reservation.room_id == int(room_id))
-        if rate_id:
-            sql = sql.filter(Reservation.rate_id == int(rate_id))
-        # Get results based on any provided filters
-        results = sql.all()
-        if not results:
-            return "NO RESULTS FOUND MATCHING THE CRITERIA."
-        else:
-            query_result = "\n".join(
-                [f"ID: {reservation.id} | Guest ID: {reservation.guest_id} | Room ID: {reservation.room_id} | "
-                 f"Rate ID: {reservation.rate_id} | Discount %: {reservation.discount_pct} | "
-                 f"Start Date: {reservation.start_date} | End Date: {reservation.end_date}" for reservation in results])
-        return query_result
+    try:
+        with Session(db_engine) as session:
+            sql = session.query(Reservation)
+            if guest_id:
+                sql = sql.filter(Reservation.guest_id == int(guest_id))
+            if room_id:
+                sql = sql.filter(Reservation.room_id == int(room_id))
+            if rate_id:
+                sql = sql.filter(Reservation.rate_id == int(rate_id))
+            # Get results based on any provided filters
+            results = sql.all()
+            if not results:
+                return "NO RESULTS FOUND MATCHING THE CRITERIA."
+            else:
+                query_result = "\n".join(
+                    [f"ID: {reservation.id} | Guest ID: {reservation.guest_id} | Room ID: {reservation.room_id} | "
+                     f"Rate ID: {reservation.rate_id} | Discount %: {reservation.discount_pct} | "
+                     f"Start Date: {reservation.start_date} | End Date: {reservation.end_date}" for reservation in results])
+    except ValueError:
+        query_result = "ERROR: Invalid data type provided for one or more search fields"
+    except SQLAlchemyError as e:
+        query_result = f"ERROR: Database error occurred: {str(e)}"
+    return query_result
 
 
 def create_reservation(db_engine):
@@ -308,7 +352,7 @@ def create_reservation(db_engine):
             session.commit()
             print_output(f"Reservation created successfully with ID: {new_reservation.id}")
     except ValueError:
-        print_output("ERROR: All fields must be whole numbers")
+        print_output("ERROR: Invalid data type provided for one or more input fields")
     except SQLAlchemyError as e:
         session.rollback()
         print_output(f"ERROR: Database error occurred: {str(e)}")
@@ -317,14 +361,20 @@ def create_reservation(db_engine):
 def delete_reservation(db_engine):
     id_to_del = input("Enter Reservation ID:\n").strip()
 
-    with Session(db_engine) as session:
-        reservation_to_del = session.query(Reservation).filter(Reservation.id == int(id_to_del)).first()
-        if reservation_to_del:
-            session.delete(reservation_to_del)
-            session.commit()
-            print_output(f"Reservation '{id_to_del}' deleted successfully.")
-        else:
-            print_output(f"Reservation '{id_to_del}' not found.")
+    try:
+        with Session(db_engine) as session:
+            reservation_to_del = session.query(Reservation).filter(Reservation.id == int(id_to_del)).first()
+            if reservation_to_del:
+                session.delete(reservation_to_del)
+                session.commit()
+                print_output(f"Reservation '{id_to_del}' deleted successfully.")
+            else:
+                print_output(f"Reservation '{id_to_del}' not found.")
+    except ValueError:
+        print_output("ERROR: Invalid data type provided for one or more input fields")
+    except SQLAlchemyError as e:
+        session.rollback()
+        print_output(f"ERROR: Database error occurred: {str(e)}")
 
 
 # Invoice Functions
@@ -402,7 +452,7 @@ def create_invoice(db_engine):
                 session.commit()
                 print_output(f"Invoice created successfully with ID: {new_invoice.id}")
     except ValueError:
-        print_output("ERROR: All fields must be valid numbers")
+        print_output("ERROR: Invalid data type provided for one or more input fields")
     except SQLAlchemyError as e:
         session.rollback()
         print_output(f"ERROR: Database error occurred: {str(e)}")
@@ -411,63 +461,80 @@ def create_invoice(db_engine):
 def delete_invoice(db_engine):
     id_to_del = input("Enter Invoice ID:\n").strip()
 
-    with Session(db_engine) as session:
-        invoice_to_del = session.query(Invoice).filter(Invoice.id == int(id_to_del)).first()
-        if invoice_to_del:
-            session.delete(invoice_to_del)
-            session.commit()
-            print_output(f"Invoice '{id_to_del}' deleted successfully.")
-        else:
-            print_output(f"Invoice '{id_to_del}' not found.")
+    try:
+        with Session(db_engine) as session:
+            invoice_to_del = session.query(Invoice).filter(Invoice.id == int(id_to_del)).first()
+            if invoice_to_del:
+                session.delete(invoice_to_del)
+                session.commit()
+                print_output(f"Invoice '{id_to_del}' deleted successfully.")
+            else:
+                print_output(f"Invoice '{id_to_del}' not found.")
+    except ValueError:
+        print_output("ERROR: Invalid data type provided for one or more input fields")
+    except SQLAlchemyError as e:
+        session.rollback()
+        print_output(f"ERROR: Database error occurred: {str(e)}")
 
 
 def pay_invoice(db_engine):
     id_to_pay = input("Enter Invoice ID:\n").strip()
 
-    with Session(db_engine) as session:
-        invoice_to_pay = session.query(Invoice).filter(Invoice.id == int(id_to_pay)).first()
-        if invoice_to_pay:
-            # Check if the invoice is already paid
-            if invoice_to_pay.is_paid_flag == 1:
-                print_output(f"Invoice '{id_to_pay}' is already paid.")
-                return
-            # else update the invoice to paid
+    try:
+        with Session(db_engine) as session:
+            invoice_to_pay = session.query(Invoice).filter(Invoice.id == int(id_to_pay)).first()
+            if invoice_to_pay:
+                # Check if the invoice is already paid
+                if invoice_to_pay.is_paid_flag == 1:
+                    print_output(f"Invoice '{id_to_pay}' is already paid.")
+                    return
+                # else update the invoice to paid
+                else:
+                    invoice_to_pay.is_paid_flag = 1
+                    invoice_to_pay.date_paid = datetime.now().strftime('%Y-%m-%d')
+                    session.commit()
+                    print_output(f"Invoice '{id_to_pay}' paid successfully.")
             else:
-                invoice_to_pay.is_paid_flag = 1
-                invoice_to_pay.date_paid = datetime.now().strftime('%Y-%m-%d')
-                session.commit()
-                print_output(f"Invoice '{id_to_pay}' paid successfully.")
-        else:
-            print_output(f"Invoice '{id_to_pay}' not found.")
+                print_output(f"Invoice '{id_to_pay}' not found.")
+    except ValueError:
+        print_output("ERROR: Invalid data type provided for one or more input fields")
+    except SQLAlchemyError as e:
+        session.rollback()
+        print_output(f"ERROR: Database error occurred: {str(e)}")
 
 
 def print_invoice(db_engine):
     id_to_print = input("Enter Invoice ID:\n").strip()
 
-    with Session(db_engine) as session:
-        invoice_to_print = session.query(Invoice).filter(Invoice.id == int(id_to_print)).first()
-        if invoice_to_print:
-            # Lookup related table details from foreign keys
-            guest = session.query(Guest).filter(Guest.id == invoice_to_print.guest_id).first()
-            reservation = session.query(Reservation).filter(Reservation.id == invoice_to_print.reservation_id).first()
-            rate = session.query(Rate).filter(Rate.id == reservation.rate_id).first()
-            room = session.query(Room).filter(Room.id == reservation.room_id).first()
-            hotel = session.query(Hotel).filter(Hotel.id == room.hotel_id).first()
-            # Print the invoice details
-            invoice_text = f"Invoice ID: {invoice_to_print.id}"
-            invoice_text = invoice_text + f"\nGuest: {guest.first_name} {guest.last_name}"
-            invoice_text = invoice_text + f"\nHotel: {hotel.name}, {hotel.city}, {hotel.state}, {hotel.zip}"
-            invoice_text = invoice_text + f"\nRoom: {room.id}, Floor: {room.floor}, Beds: {room.num_beds}"
-            invoice_text = invoice_text + f"\nRate: {rate.rate_type}, Amount: {rate.rate_amount} per day"
-            invoice_text = invoice_text + f" --> Discount applied: {reservation.discount_pct}%"
-            invoice_text = invoice_text + f"\nReservation Dates: {reservation.start_date} to {reservation.end_date}"
-            invoice_text = invoice_text + (f", Length of Stay: {(datetime.strptime(reservation.end_date, '%Y-%m-%d') 
-                                               - datetime.strptime(reservation.start_date, '%Y-%m-%d')).days} days")
-            invoice_text = invoice_text + f"\nInvoice Total Amount: {invoice_to_print.amount}"
-            invoice_text = invoice_text + f"\nInvoice Paid: {'Yes' if invoice_to_print.is_paid_flag == 1 else 'No'}"
-            print_output(invoice_text)
-        else:
-            print_output(f"Invoice '{id_to_print}' not found.")
+    try:
+        with Session(db_engine) as session:
+            invoice_to_print = session.query(Invoice).filter(Invoice.id == int(id_to_print)).first()
+            if invoice_to_print:
+                # Lookup related table details from foreign keys
+                guest = session.query(Guest).filter(Guest.id == invoice_to_print.guest_id).first()
+                reservation = session.query(Reservation).filter(Reservation.id == invoice_to_print.reservation_id).first()
+                rate = session.query(Rate).filter(Rate.id == reservation.rate_id).first()
+                room = session.query(Room).filter(Room.id == reservation.room_id).first()
+                hotel = session.query(Hotel).filter(Hotel.id == room.hotel_id).first()
+                # Print the invoice details
+                invoice_text = f"Invoice ID: {invoice_to_print.id}"
+                invoice_text = invoice_text + f"\nGuest: {guest.first_name} {guest.last_name}"
+                invoice_text = invoice_text + f"\nHotel: {hotel.name}, {hotel.city}, {hotel.state}, {hotel.zip}"
+                invoice_text = invoice_text + f"\nRoom: {room.id}, Floor: {room.floor}, Beds: {room.num_beds}"
+                invoice_text = invoice_text + f"\nRate: {rate.rate_type}, Amount: {rate.rate_amount} per day"
+                invoice_text = invoice_text + f" --> Discount applied: {reservation.discount_pct}%"
+                invoice_text = invoice_text + f"\nReservation Dates: {reservation.start_date} to {reservation.end_date}"
+                invoice_text = invoice_text + (f", Length of Stay: {(datetime.strptime(reservation.end_date, '%Y-%m-%d') 
+                                                   - datetime.strptime(reservation.start_date, '%Y-%m-%d')).days} days")
+                invoice_text = invoice_text + f"\nInvoice Total Amount: {invoice_to_print.amount}"
+                invoice_text = invoice_text + f"\nInvoice Paid: {'Yes' if invoice_to_print.is_paid_flag == 1 else 'No'}"
+                print_output(invoice_text)
+            else:
+                print_output(f"Invoice '{id_to_print}' not found.")
+    except ValueError:
+        print_output("ERROR: Invalid data type provided for one or more input fields")
+    except SQLAlchemyError as e:
+        print_output(f"ERROR: Database error occurred: {str(e)}")
 
 
 # Rate Functions
@@ -487,18 +554,23 @@ def query_rate_by_parm(db_engine):
 
 def query_rates(db_engine, rate_type=None):
     """Query rates based on optional parameters."""
-    with Session(db_engine) as session:
-        sql = session.query(Rate)
-        if rate_type:
-            sql = sql.filter(Rate.rate_type == rate_type)
-        # Get results based on any provided filters
-        results = sql.all()
-        if not results:
-            return "NO RESULTS FOUND MATCHING THE CRITERIA."
-        else:
-            query_result = "\n".join(
-                [f"ID: {rate.id} | Rate Type: {rate.rate_type} | Rate Amount: {rate.rate_amount}" for rate in results])
-        return query_result
+    try:
+        with Session(db_engine) as session:
+            sql = session.query(Rate)
+            if rate_type:
+                sql = sql.filter(Rate.rate_type == rate_type)
+            # Get results based on any provided filters
+            results = sql.all()
+            if not results:
+                return "NO RESULTS FOUND MATCHING THE CRITERIA."
+            else:
+                query_result = "\n".join(
+                    [f"ID: {rate.id} | Rate Type: {rate.rate_type} | Rate Amount: {rate.rate_amount}" for rate in results])
+    except ValueError:
+        query_result = "ERROR: Invalid data type provided for one or more search fields"
+    except SQLAlchemyError as e:
+        query_result = f"ERROR: Database error occurred: {str(e)}"
+    return query_result
 
 
 def create_rate(db_engine):
@@ -512,7 +584,7 @@ def create_rate(db_engine):
             session.commit()
             print_output(f"Rate created successfully with ID: {new_rate.id}")
     except ValueError:
-        print_output("ERROR: Rate amount must be a valid number")
+        print_output("ERROR: Invalid data type provided for one or more input fields")
     except SQLAlchemyError as e:
         session.rollback()
         print_output(f"ERROR: Database error occurred: {str(e)}")
@@ -521,11 +593,17 @@ def create_rate(db_engine):
 def delete_rate(db_engine):
     id_to_del = input("Enter Rate ID:\n").strip()
 
-    with Session(db_engine) as session:
-        rate_to_del = session.query(Rate).filter(Rate.id == int(id_to_del)).first()
-        if rate_to_del:
-            session.delete(rate_to_del)
-            session.commit()
-            print_output(f"Rate '{id_to_del}' deleted successfully.")
-        else:
-            print_output(f"Rate '{id_to_del}' not found.")
+    try:
+        with Session(db_engine) as session:
+            rate_to_del = session.query(Rate).filter(Rate.id == int(id_to_del)).first()
+            if rate_to_del:
+                session.delete(rate_to_del)
+                session.commit()
+                print_output(f"Rate '{id_to_del}' deleted successfully.")
+            else:
+                print_output(f"Rate '{id_to_del}' not found.")
+    except ValueError:
+        print_output("ERROR: Invalid data type provided for one or more input fields")
+    except SQLAlchemyError as e:
+        session.rollback()
+        print_output(f"ERROR: Database error occurred: {str(e)}")
