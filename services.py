@@ -156,7 +156,7 @@ def change_room_availability(db_engine):
             if room_to_change:
                 room_to_change.is_reservable_flag = int(new_availability)
                 session.commit()
-                print_output(f"Room {id_to_change} availability changed to {'False' if new_availability == 0 else 'True'}.")
+                print_output(f"Room {id_to_change} availability changed to {'False' if int(new_availability) == 0 else 'True'}.")
             else:
                 print_output(f"ERROR: Room {id_to_change} not found.")
     except ValueError:
